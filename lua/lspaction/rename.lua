@@ -33,20 +33,20 @@ local apply_action_keys = function()
   local quit_key = config.rename_action_keys.quit
   local exec_key = config.rename_action_keys.exec
   api.nvim_command(
-    "inoremap <buffer><nowait><silent>" .. exec_key .. ' <cmd>lua require("lspsaga.rename").do_rename()<CR>'
+    "inoremap <buffer><nowait><silent>" .. exec_key .. ' <cmd>lua require("lspaction.rename").do_rename()<CR>'
   )
   if type(quit_key) == "table" then
     for _, k in ipairs(quit_key) do
       api.nvim_command(
-        "inoremap <buffer><nowait><silent>" .. k .. ' <cmd>lua require("lspsaga.rename").close_rename_win()<CR>'
+        "inoremap <buffer><nowait><silent>" .. k .. ' <cmd>lua require("lspaction.rename").close_rename_win()<CR>'
       )
     end
   else
     api.nvim_command(
-      "inoremap <buffer><nowait><silent>" .. quit_key .. ' <cmd>lua require("lspsaga.rename").close_rename_win()<CR>'
+      "inoremap <buffer><nowait><silent>" .. quit_key .. ' <cmd>lua require("lspaction.rename").close_rename_win()<CR>'
     )
   end
-  api.nvim_command 'nnoremap <buffer><silent>q <cmd>lua require("lspsaga.rename").close_rename_win()<CR>'
+  api.nvim_command 'nnoremap <buffer><silent>q <cmd>lua require("lspaction.rename").close_rename_win()<CR>'
 end
 
 local rename = function()
@@ -73,7 +73,7 @@ local rename = function()
 
   local current_name = vim.fn.expand "<cword>"
   local bufnr, winid = window.create_win_with_border(content_opts, opts)
-  local saga_rename_prompt_prefix = api.nvim_create_namespace "lspsaga_rename_prompt_prefix"
+  local saga_rename_prompt_prefix = api.nvim_create_namespace "lspaction.rename_prompt_prefix"
   api.nvim_win_set_option(winid, "scrolloff", 0)
   api.nvim_win_set_option(winid, "sidescrolloff", 0)
   api.nvim_buf_set_option(bufnr, "modifiable", true)
@@ -89,7 +89,7 @@ local rename = function()
   end
 
   api.nvim_win_set_var(0, unique_name, winid)
-  api.nvim_command "autocmd QuitPre <buffer> ++nested ++once :silent lua require('lspsaga.rename').close_rename_win()"
+  api.nvim_command "autocmd QuitPre <buffer> ++nested ++once :silent lua require('lspaction.rename').close_rename_win()"
   apply_action_keys()
 end
 
