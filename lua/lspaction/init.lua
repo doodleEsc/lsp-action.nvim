@@ -7,10 +7,14 @@ lspaction.config = {
 	infor_sign = "",
 	code_action_icon = " ",
 	code_action_prompt = {
-	  enable = true,
-	  sign = true,
-	  sign_priority = 40,
-	  virtual_text = true,
+		enable = true,
+		sign = true,
+		sign_priority = 50,
+		virtual_text = true,
+	},
+	code_action_keys = {
+		quit = "<C-c>",
+		exec = "<CR>",
 	},
 	border_style = "single",
 	rename_prompt_prefix = "➤",
@@ -44,19 +48,25 @@ end
 lspaction.setup = function(opts)
 	extend_config(opts)
 	local config = lspaction.config
+
 	for type, icon in pairs {
-      Error = config.error_sign,
-      Warn = config.warn_sign,
-      Hint = config.hint_sign,
-      Info = config.infor_sign,
-    } do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, {
-        text = icon,
-        texthl = hl,
-        numhl = "",
-      })
-    end
+	  Error = config.error_sign,
+	  Warn = config.warn_sign,
+	  Hint = config.hint_sign,
+	  Info = config.infor_sign,
+	} do
+	  local hl = "DiagnosticSign" .. type
+	  vim.fn.sign_define(hl, {
+		text = icon,
+		texthl = hl,
+		numhl = "",
+	  })
+	end
+
+	if config.code_action_prompt.enable then
+		require("lspaction.codeaction.indicator").attach()
+	end
+
 end
 
 return lspaction
