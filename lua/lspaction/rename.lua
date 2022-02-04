@@ -1,20 +1,13 @@
 local lsp, util, api = vim.lsp, vim.lsp.util, vim.api
 local window = require "lspaction.window"
 local config = require("lspaction").config
+local libs = require "lspaction.libs"
 
 local unique_name = "textDocument-rename"
 local pos = {}
 
 local get_prompt_prefix = function()
   return config.rename_prompt_prefix .. " "
-end
-
-local check_lsp_active = function()
-  local active_clients = vim.lsp.get_active_clients()
-  if next(active_clients) == nil then
-    return false, "[lspaction] No lsp client available"
-  end
-  return true, nil
 end
 
 local close_rename_win = function()
@@ -50,7 +43,7 @@ local apply_action_keys = function()
 end
 
 local rename = function()
-  local active, msg = check_lsp_active()
+  local active, msg = libs.check_lsp_active()
   if not active then
     print(msg)
     return

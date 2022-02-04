@@ -1,66 +1,12 @@
 local config = require("lspaction").config
 local window = require "lspaction.window"
+local api = require "lspaction.api"
+local libs = require "lspaction.libs"
 
 local M = { title = config.code_action_icon .. "CodeActions:" }
 
-local execute = function(client, action, ctx)
-  if action.edit then
-    vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
-  end
-
-  if action.command then
-    local command = type(action.command) == "table" and action.command or action
-    local fn = vim.lsp.commands[command.command]
-    if fn then
-      local enriched_ctx = vim.deepcopy(ctx)
-      enriched_ctx.client_id = client.id
-      fn(command, ctx)
-    else
-      vim.lsp.buf.execute_command(command)
-    end
-  end
-end
-
-local function code_action_execute(client_id, action, ctx)
-  local client = vim.lsp.get_client_by_id(client_id)
-  if
-    not action.edit
-    and client
-    and type(client.resolved_capabilities.code_action) == "table"
-    and client.resolved_capabilities.code_action.resolveProvider
-  then
-    client.request("codeAction/resolve", action, function(err, resolved_action)
-      if err then
-        vim.notify(err.code .. ": " .. err.message, vim.log.levels.ERROR)
-        return
-      end
-      execute(client, resolved_action, ctx)
-    end)
-  else
-    execute(client, action, ctx)
-  end
-end
-
-local function apply_keys(ns, actions)
-  local map = function(func, keys)
-    keys = type(keys) == "string" and { keys } or keys
-    local fmt = "nnoremap <buffer><nowait><silent>%s <cmd>lua require('lspaction.%s').%s()<CR>"
-
-    vim.tbl_map(function(key)
-      vim.api.nvim_command(string.format(fmt, key, ns, func))
-    end, keys)
-  end
-  if actions then
-    for func, keys in pairs(actions) do
-      map(func, keys)
-    end
-  else
-    return map
-  end
-end
-
 M.apply_keys = function()
-  apply_keys("codeaction.window", {
+  libs.apply_keys("codeaction.window", {
     ["close"] = config.code_action_keys.quit,
     ["execute"] = config.code_action_keys.exec,
   })
@@ -106,7 +52,7 @@ M.execute = function()
   if choice then
     M.close()
     local client_id, action = choice[1], choice[2]
-    code_action_execute(client_id, action, M.ctx)
+    api.code_action_execute(client_id, action, M.ctx)
     return
   end
   M.close()

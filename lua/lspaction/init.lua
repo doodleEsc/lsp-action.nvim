@@ -5,6 +5,8 @@ lspaction.config = {
 	warn_sign = "",
 	hint_sign = "",
 	infor_sign = "",
+	diagnostic_header_icon = "  ",
+	diagnostic_prefix_format = "%d. ",
 	code_action_icon = " ",
 	code_action_prompt = {
 		enable = true,
@@ -16,7 +18,7 @@ lspaction.config = {
 		quit = "<C-c>",
 		exec = "<CR>",
 	},
-	border_style = "single",
+	border_style = "round",
 	rename_prompt_prefix = "➤",
 	rename_prompt_populate = true,
 	rename_action_keys = {

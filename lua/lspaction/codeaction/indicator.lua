@@ -3,8 +3,8 @@ local _config = require("lspaction").config
 local config = _config.code_action_prompt
 local icon = _config.code_action_icon
 local window = require "lspaction.codeaction.window"
-
-local code_action = "textDocument/codeAction"
+local libs = require "lspaction.libs"
+local api = require "lspaction.api"
 
 M.group = "sagalightbulb"
 M.sign_name = "LspSagaLightBulb"
@@ -27,14 +27,6 @@ M.special_buffers = {
   ["markdown"] = true,
   ["text"] = true,
 }
-
-local check_lsp_active = function()
-  local active_clients = vim.lsp.get_active_clients()
-  if next(active_clients) == nil then
-    return false, "[lspaction] No lsp client available"
-  end
-  return true, nil
-end
 
 M.update = function(winid, line)
   if config.virtual_text then
@@ -69,15 +61,8 @@ M.update = function(winid, line)
   end
 end
 
-local function code_action_request(args)
-  local bufnr = vim.api.nvim_get_current_buf()
-  args.params.context = args.context or { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
-  local callback = args.callback { bufnr = bufnr, method = code_action, params = args.params }
-  vim.lsp.buf_request_all(bufnr, code_action, args.params, callback)
-end
-
 M.check = function()
-  local active, _ = check_lsp_active()
+  local active, _ = libs.check_lsp_active()
   local current_file = vim.fn.expand "%:p"
 
   if M.servers[current_file] == nil then
@@ -101,7 +86,7 @@ M.check = function()
   window[winid] = window[winid] or {}
   window[winid].lightbulb_line = window[winid].lightbulb_line or 0
 
-  code_action_request {
+  api.code_action_request {
     params = vim.lsp.util.make_range_params(),
     callback = function(ctx)
       local line = ctx.params.range.start.line
