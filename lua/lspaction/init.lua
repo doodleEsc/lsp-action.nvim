@@ -7,6 +7,7 @@ lspaction.config = {
 	infor_sign = "",
 	diagnostic_header_icon = "  ",
 	diagnostic_prefix_format = "%d. ",
+	diagnostic_virtual_text = true,
 	code_action_icon = " ",
 	code_action_prompt = {
 		enable = true,
@@ -68,6 +69,8 @@ lspaction.setup = function(opts)
 	if config.code_action_prompt.enable then
 		require("lspaction.codeaction.indicator").attach()
 	end
+
+	vim.diagnostic.config({virtual_text = config.diagnostic_virtual_text})
 
 end
 
